@@ -13,6 +13,6 @@ export default async function ProtectedLayout({children} : {children: React.Reac
         )
     }
     else{
-        redirect('/api/auth/signin')
+        redirect('/login')
     }
 }
