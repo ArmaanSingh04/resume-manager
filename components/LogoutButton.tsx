@@ -2,7 +2,13 @@
 
 import { signOut } from "next-auth/react";
 
-export default function LogoutButton() {
+interface LogoutButtonProps {
+    className?: string;
+    children?: React.ReactNode;
+    title?: string;
+}
+
+export default function LogoutButton({ className, children, title }: LogoutButtonProps) {
     return (
         <button
             onClick={() =>
@@ -10,9 +16,10 @@ export default function LogoutButton() {
                     callbackUrl: "/",
                 })
             }
-            className="rounded bg-red-500 px-4 py-2 text-white cursor-pointer"
+            className={className || "rounded bg-red-500 px-4 py-2 text-white cursor-pointer"}
+            title={title}
         >
-            Logout
+            {children || "Logout"}
         </button>
     );
 }
