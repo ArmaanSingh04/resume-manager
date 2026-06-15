@@ -62,7 +62,7 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
   }
 
   const session = await getServerSession(authOptions);
-  const isOwner = !!(session?.user?.id && Number(session.user.id) === link.file.userId);
+  const isOwner = !!(session?.user?.id && Number(session.user.id) === link.userId);
 
   if (link.type === "PRIVATE" && !isOwner) {
     return (
@@ -73,9 +73,9 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
-          <h1 className="text-xl font-bold mb-2">Access Denied</h1>
+          <h1 className="text-xl font-bold mb-2">This Resume is Private</h1>
           <p className="text-zinc-400 text-sm mb-6">
-            This shared link is set to private by the owner. You must be signed in as the owner to view it.
+            This resume is set to private by the owner. Only the owner can view this resume.
           </p>
           <Link
             href="/login"
@@ -83,6 +83,32 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
           >
             Sign In
           </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (!link.file) {
+    return (
+      <div className="min-h-screen bg-zinc-950 text-zinc-100 flex items-center justify-center font-sans p-4">
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 max-w-md w-full text-center shadow-xl">
+          <div className="w-16 h-16 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 mb-6 mx-auto border border-orange-500/20">
+            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+            </svg>
+          </div>
+          <h1 className="text-xl font-bold mb-2">No Resume Found</h1>
+          <p className="text-zinc-400 text-sm mb-6">
+            No resume is currently attached to this share link. The owner may have deleted the file or has not linked it yet.
+          </p>
+          {isOwner && (
+            <Link
+              href="/dashboard"
+              className="inline-block bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white font-semibold px-6 py-2.5 rounded-lg transition-colors cursor-pointer text-sm"
+            >
+              Go to Dashboard to Fix
+            </Link>
+          )}
         </div>
       </div>
     );

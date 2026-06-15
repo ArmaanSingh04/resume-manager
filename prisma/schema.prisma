@@ -18,6 +18,7 @@ model User {
   password String
 
   files File[]
+  links Link[]
 }
 
 model File {
@@ -39,9 +40,11 @@ enum LinkType {
 }
 
 model Link {
-  id         Int     @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   type       LinkType
-  fileId     Int       @unique
-  file       File      @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  fileId     Int?      @unique
+  file       File?     @relation(fields: [fileId], references: [id], onDelete: SetNull)
+  userId     Int
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt  DateTime  @default(now())
 }

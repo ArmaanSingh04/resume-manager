@@ -20,7 +20,7 @@ export async function deleteLink(linkId: number) {
     throw new Error("Link not found");
   }
 
-  if (link.file.userId !== Number(session.user.id)) {
+  if (link.userId !== Number(session.user.id)) {
     throw new Error("Unauthorized to delete this link");
   }
 

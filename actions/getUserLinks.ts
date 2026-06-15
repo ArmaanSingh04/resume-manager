@@ -13,9 +13,7 @@ export async function getUserLinks() {
 
   const links = await prisma.link.findMany({
     where: {
-      file: {
-        userId: Number(session.user.id),
-      },
+      userId: Number(session.user.id),
     },
     include: {
       file: true,

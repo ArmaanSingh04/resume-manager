@@ -27,9 +27,13 @@ export async function GET(
 
   if (link.type === "PRIVATE") {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.id || Number(session.user.id) !== link.file.userId) {
+    if (!session?.user?.id || Number(session.user.id) !== link.userId) {
       return new Response("Unauthorized", { status: 403 });
     }
+  }
+
+  if (!link.file) {
+    return new Response("No file attached to this link", { status: 404 });
   }
 
   try {

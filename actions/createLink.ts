@@ -33,6 +33,7 @@ export async function createLink(fileId: number, type: "PUBLIC" | "PRIVATE") {
     data: {
       fileId,
       type,
+      userId: Number(session.user.id),
     },
     include: {
       file: true,
@@ -45,8 +46,8 @@ export async function createLink(fileId: number, type: "PUBLIC" | "PRIVATE") {
     fileId: link.fileId,
     createdAt: link.createdAt.toISOString(),
     file: {
-      fileName: link.file.fileName,
-      key: link.file.key,
+      fileName: link.file!.fileName,
+      key: link.file!.key,
     },
   };
 }
