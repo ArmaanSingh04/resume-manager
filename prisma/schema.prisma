@@ -28,5 +28,20 @@ model File {
   userId   Int
   user     User @relation(fields: [userId], references: [id])
 
+  link     Link?
+
   createdAt DateTime @default(now())
+}
+
+enum LinkType {
+  PUBLIC
+  PRIVATE
+}
+
+model Link {
+  id         Int     @id @default(autoincrement())
+  type       LinkType
+  fileId     Int       @unique
+  file       File      @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
 }
