@@ -4,6 +4,7 @@ import { useState } from "react";
 import { uploadFiles } from "@/actions/uploadFiles";
 import { getUserFiles } from "@/actions/getUserFiles";
 import { deleteFile } from "@/actions/deleteFile";
+import { getResumeStats } from "@/actions/getResumeStats";
 
 export interface ClientFile {
   id: number;
@@ -23,6 +24,42 @@ export default function ManageResumesClient({ initialFiles }: ManageResumesClien
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
+
+  const [isStatsOpen, setIsStatsOpen] = useState(false);
+  const [selectedFileForStats, setSelectedFileForStats] = useState<ClientFile | null>(null);
+  const [isLoadingStats, setIsLoadingStats] = useState(false);
+  const [statsData, setStatsData] = useState<{
+    totalViews: number;
+    uniqueVisitors: number;
+    visitors: Array<{
+      id: number;
+      visitorId: string;
+      views: number;
+      firstVisit: string;
+      lastVisit: string;
+    }>;
+  } | null>(null);
+
+  const handleOpenStats = async (file: ClientFile) => {
+    setSelectedFileForStats(file);
+    setIsStatsOpen(true);
+    setIsLoadingStats(true);
+    setStatsData(null);
+    try {
+      const data = await getResumeStats(file.id);
+      setStatsData(data);
+    } catch (err) {
+      console.error("Failed to load resume statistics:", err);
+    } finally {
+      setIsLoadingStats(false);
+    }
+  };
+
+  const handleCloseStats = () => {
+    setIsStatsOpen(false);
+    setSelectedFileForStats(null);
+    setStatsData(null);
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -165,7 +202,7 @@ export default function ManageResumesClient({ initialFiles }: ManageResumesClien
                   <h4 className="font-semibold text-zinc-100 truncate group-hover:text-orange-500 transition-colors" title={file.fileName}>
                     {file.fileName}
                   </h4>
-                  <p className="text-xs text-zinc-500 mt-1">
+                  <p className="text-xs text-zinc-550 mt-1">
                     Uploaded {new Date(file.createdAt).toLocaleDateString(undefined, {
                       year: 'numeric',
                       month: 'short',
@@ -173,6 +210,19 @@ export default function ManageResumesClient({ initialFiles }: ManageResumesClien
                     })}
                   </p>
                 </div>
+              </div>
+
+              {/* Statistics button under card */}
+              <div className="flex items-center gap-2 relative z-10 border-t border-zinc-800/80 pt-4 mt-4">
+                <button
+                  onClick={() => handleOpenStats(file)}
+                  className="flex-1 bg-orange-600/10 hover:bg-orange-600/20 text-orange-500 border border-orange-500/20 text-xs font-semibold py-2 rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  <span>Statistics</span>
+                </button>
               </div>
             </div>
           ))}
@@ -257,6 +307,102 @@ export default function ManageResumesClient({ initialFiles }: ManageResumesClien
               </button>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* Drawer Panel Overlay */}
+      {isStatsOpen && selectedFileForStats && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          {/* Backdrop overlay */}
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ease-out cursor-pointer"
+            onClick={handleCloseStats}
+          />
+          {/* Drawer Panel (slides in from right) */}
+          <aside className="relative flex flex-col w-full max-w-md bg-zinc-900 border-l border-zinc-800 h-full p-6 transition-transform duration-300 ease-in-out z-10 animate-in slide-in-from-right">
+            {/* Drawer Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-zinc-800/80 mb-6 shrink-0">
+              <div className="flex flex-col min-w-0 pr-4">
+                <span className="text-lg font-bold text-orange-500 truncate block">
+                  Resume Statistics
+                </span>
+                <span className="text-zinc-400 text-xs truncate block mt-0.5" title={selectedFileForStats.fileName}>
+                  {selectedFileForStats.fileName}
+                </span>
+              </div>
+              <button
+                onClick={handleCloseStats}
+                className="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-zinc-100 transition-colors focus:outline-none cursor-pointer shrink-0"
+                aria-label="Close statistics menu"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Stats Content */}
+            {isLoadingStats ? (
+              <div className="flex-1 flex flex-col items-center justify-center text-zinc-400 gap-2">
+                <svg className="animate-spin h-6 w-6 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span className="text-sm">Fetching statistics...</span>
+              </div>
+            ) : statsData ? (
+              <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
+                {/* Summary Cards */}
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="bg-zinc-950 border border-zinc-800/80 rounded-xl p-4 flex flex-col items-center text-center">
+                    <span className="text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-1">Total Views</span>
+                    <span className="text-3xl font-extrabold text-orange-500">{statsData.totalViews}</span>
+                  </div>
+                  <div className="bg-zinc-950 border border-zinc-800/80 rounded-xl p-4 flex flex-col items-center text-center">
+                    <span className="text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-1">Unique Visitors</span>
+                    <span className="text-3xl font-extrabold text-orange-500">{statsData.uniqueVisitors}</span>
+                  </div>
+                </div>
+
+                {/* Visitor Log Section */}
+                <div className="flex flex-col flex-1 min-h-0">
+                  <h4 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-3 shrink-0">Visitor Log</h4>
+                  
+                  {statsData.visitors.length === 0 ? (
+                    <div className="flex-1 bg-zinc-950/40 border border-zinc-800/60 rounded-xl flex flex-col items-center justify-center p-6 text-center text-zinc-500">
+                      <svg className="w-8 h-8 text-zinc-650 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A9.342 9.342 0 0012.458 10.22c-.67-.324-1.378-.543-2.12-.642m11.739 8.254a9.348 9.348 0 00-2.201-1.35M17.618 19.062A7.062 7.062 0 0115 17.202M9 19.128a9.38 9.38 0 01-2.625.372 9.337 9.337 0 01-4.121-.952 4.125 4.125 0 017.533-2.493M9 19.128v-.003c0-1.113.285-2.16.786-3.07M9 19.128v.109A9.342 9.342 0 0112.458 10.22c.67-.324 1.378-.543 2.12-.642m-11.739 8.254a9.348 9.348 0 012.201-1.35M6.382 19.062A7.062 7.062 0 009 17.202m0 0a5.002 5.002 0 01-5-5c0-2.76 2.24-5 5-5s5 2.24 5 5a5.002 5.002 0 01-5 5z" />
+                      </svg>
+                      <span className="text-xs">No visitor logs recorded yet</span>
+                    </div>
+                  ) : (
+                    <div className="flex-1 overflow-y-auto border border-zinc-800 rounded-xl bg-zinc-950 divide-y divide-zinc-900">
+                      {statsData.visitors.map((visitor, idx) => (
+                        <div key={visitor.id} className="p-3.5 flex flex-col gap-1.5 text-xs">
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono text-zinc-300 font-semibold">
+                              Visitor #{statsData.visitors.length - idx} (uuid: {visitor.visitorId.slice(0, 8)}...)
+                            </span>
+                            <span className="bg-orange-600/10 text-orange-400 border border-orange-500/20 px-2 py-0.5 rounded-full font-bold">
+                              {visitor.views} {visitor.views === 1 ? "view" : "views"}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between text-zinc-500 mt-1">
+                            <span>First: {new Date(visitor.firstVisit).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}</span>
+                            <span>Last: {new Date(visitor.lastVisit).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 flex items-center justify-center text-red-500 text-sm">
+                Failed to load statistics
+              </div>
+            )}
+          </aside>
         </div>
       )}
     </div>
