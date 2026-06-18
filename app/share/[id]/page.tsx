@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import Link from "next/link";
 import PdfShareView from "@/components/PdfShareView";
+import ResumeTracker from "@/components/ResumeTracker";
 
 export default async function SharePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -118,12 +119,16 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
 
   if (isPdf) {
     return (
-      <PdfShareView linkId={link.id} fileName={link.file.fileName} isOwner={isOwner} />
+      <>
+        <ResumeTracker fileId={link.file.id} />
+        <PdfShareView linkId={link.id} fileName={link.file.fileName} isOwner={isOwner} />
+      </>
     );
   }
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col items-center justify-center font-sans p-4 relative overflow-hidden">
+      <ResumeTracker fileId={link.file.id} />
       {/* Decorative ambient light */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-orange-500/5 rounded-full blur-[120px] pointer-events-none" />
 
@@ -140,8 +145,8 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
         <div className="mb-4">
           <span
             className={`text-xs px-3 py-1 rounded-full font-semibold border flex items-center gap-1.5 ${link.type === "PUBLIC"
-                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                : "bg-orange-500/10 text-orange-400 border-orange-500/20"
+              ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+              : "bg-orange-500/10 text-orange-400 border-orange-500/20"
               }`}
           >
             {link.type === "PUBLIC" ? (

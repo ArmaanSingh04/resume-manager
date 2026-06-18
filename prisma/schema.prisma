@@ -22,16 +22,21 @@ model User {
 }
 
 model File {
-  id       Int    @id @default(autoincrement())
-  fileName String
-  key      String
+  id              Int           @id @default(autoincrement())
+  fileName        String
+  key             String
 
-  userId   Int
-  user     User @relation(fields: [userId], references: [id])
+  userId          Int
+  user            User          @relation(fields: [userId], references: [id])
 
-  link     Link?
+  link            Link?
 
-  createdAt DateTime @default(now())
+  totalViews      Int           @default(0)
+  uniqueVisitors  Int           @default(0)
+
+  createdAt       DateTime      @default(now())
+
+  visitors        FileVisitor[]
 }
 
 enum LinkType {
@@ -47,4 +52,21 @@ model Link {
   userId     Int
   user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt  DateTime  @default(now())
+}
+
+model FileVisitor {
+  id          Int      @id @default(autoincrement())
+
+  fileId      Int
+  file        File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  visitorId   String
+
+  views       Int      @default(1)
+
+  firstVisit  DateTime @default(now())
+  lastVisit   DateTime @default(now())
+
+  @@unique([fileId, visitorId])
+  @@index([fileId])
 }

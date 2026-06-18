@@ -88,7 +88,7 @@ export default async function Home() {
             href="/register"
             className="bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-[#111010] font-bold px-6 sm:px-8 py-3 sm:py-4 rounded-xl transition-all cursor-pointer text-base sm:text-lg shadow-xl shadow-orange-950/30"
           >
-            Get Started For Free
+            Get Started
           </Link>
         )}
       </main>

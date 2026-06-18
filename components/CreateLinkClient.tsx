@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createLink } from "@/actions/createLink";
 import { deleteLink } from "@/actions/deleteLink";
 import { updateLinkFile } from "@/actions/updateLinkFile";
@@ -23,6 +23,11 @@ interface CreateLinkClientProps {
 }
 
 export default function CreateLinkClient({ initialLinks, initialFiles }: CreateLinkClientProps) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const [links, setLinks] = useState<ClientLink[]>(initialLinks);
   const [files] = useState<ClientFile[]>(initialFiles);
   const [isCreateLinkModalOpen, setIsCreateLinkModalOpen] = useState(false);
@@ -158,7 +163,7 @@ export default function CreateLinkClient({ initialLinks, initialFiles }: CreateL
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {links.map((link) => {
-            const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/share/${link.id}` : "";
+            const shareUrl = mounted && typeof window !== "undefined" ? `${window.location.origin}/share/${link.id}` : "";
             return (
               <div
                 key={link.id}
