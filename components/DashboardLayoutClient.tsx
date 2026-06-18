@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import LogoutButton from "./LogoutButton";
+import { getSidebarStats } from "@/actions/getSidebarStats";
 
 interface DashboardLayoutClientProps {
   session: {
@@ -18,9 +19,28 @@ export default function DashboardLayoutClient({ session, children }: DashboardLa
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [stats, setStats] = useState({
+    totalResumes: 0,
+    totalLinks: 0,
+    totalViews: 0,
+  });
 
   const isManageActive = pathname === "/dashboard";
   const isCreateActive = pathname === "/dashboard/create-link";
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await getSidebarStats();
+        setStats(data);
+      } catch (error) {
+        console.error("Failed to fetch sidebar stats:", error);
+      }
+    };
+    fetchStats();
+    const interval = setInterval(fetchStats, 10000);
+    return () => clearInterval(interval);
+  }, [pathname]);
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans overflow-hidden">
@@ -68,10 +88,10 @@ export default function DashboardLayoutClient({ session, children }: DashboardLa
             </div>
 
             {/* Sidebar Navigation */}
-            <nav className="p-3 flex flex-col gap-1.5">
+            <nav className="p-3 flex flex-col gap-2">
               <Link
                 href="/dashboard"
-                className={`flex items-center gap-3 py-3 rounded-lg font-medium transition-all cursor-pointer ${
+                className={`flex items-center gap-3.5 py-3.5 rounded-lg font-semibold transition-all cursor-pointer ${
                   isCollapsed ? "justify-center px-0" : "px-4"
                 } ${
                   isManageActive
@@ -80,14 +100,14 @@ export default function DashboardLayoutClient({ session, children }: DashboardLa
                 }`}
                 title={isCollapsed ? "Manage Resumes" : undefined}
               >
-                <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <svg className="w-5.5 h-5.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                 </svg>
-                {!isCollapsed && <span className="text-sm">Manage Resumes</span>}
+                {!isCollapsed && <span className="text-base">Manage Resumes</span>}
               </Link>
               <Link
                 href="/dashboard/create-link"
-                className={`flex items-center gap-3 py-3 rounded-lg font-medium transition-all cursor-pointer ${
+                className={`flex items-center gap-3.5 py-3.5 rounded-lg font-semibold transition-all cursor-pointer ${
                   isCollapsed ? "justify-center px-0" : "px-4"
                 } ${
                   isCreateActive
@@ -96,16 +116,73 @@ export default function DashboardLayoutClient({ session, children }: DashboardLa
                 }`}
                 title={isCollapsed ? "Create Link" : undefined}
               >
-                <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+                <svg className="w-5.5 h-5.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 00-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
                 </svg>
-                {!isCollapsed && <span className="text-sm">Create Link</span>}
+                {!isCollapsed && <span className="text-base">Create Link</span>}
               </Link>
             </nav>
           </div>
 
           {/* User profile / Logout bottom container */}
           <div className="p-3 border-t border-zinc-800 flex flex-col gap-2.5 bg-zinc-900/40 justify-end">
+            {/* Stats section */}
+            {!isCollapsed ? (
+              <div className="bg-zinc-950/60 border border-zinc-800/40 rounded-xl p-3 mb-1.5 flex flex-col gap-2.5 transition-all">
+                <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider px-1">Statistics</span>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between bg-zinc-900/30 border border-zinc-800/30 rounded-lg p-3 transition-all hover:border-orange-500/20" title={`${stats.totalResumes} Resumes`}>
+                    <div className="flex items-center gap-3">
+                      <svg className="w-5 h-5 text-orange-500/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5-3H12" />
+                      </svg>
+                      <span className="text-sm text-zinc-350 font-semibold">Total Resumes</span>
+                    </div>
+                    <span className="text-lg font-extrabold text-orange-500">{stats.totalResumes}</span>
+                  </div>
+                  <div className="flex items-center justify-between bg-zinc-900/30 border border-zinc-800/30 rounded-lg p-3 transition-all hover:border-orange-500/20" title={`${stats.totalLinks} Links`}>
+                    <div className="flex items-center gap-3">
+                      <svg className="w-5 h-5 text-orange-500/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+                      </svg>
+                      <span className="text-sm text-zinc-350 font-semibold">Total Links</span>
+                    </div>
+                    <span className="text-lg font-extrabold text-orange-500">{stats.totalLinks}</span>
+                  </div>
+                  <div className="flex items-center justify-between bg-zinc-900/30 border border-zinc-800/30 rounded-lg p-3 transition-all hover:border-orange-500/20" title={`${stats.totalViews} Views`}>
+                    <div className="flex items-center gap-3">
+                      <svg className="w-5 h-5 text-orange-500/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span className="text-sm text-zinc-350 font-semibold">Total Views</span>
+                    </div>
+                    <span className="text-lg font-extrabold text-orange-500">{stats.totalViews}</span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2.5 items-center py-2 bg-zinc-950/40 border border-zinc-800/40 rounded-lg mb-1">
+                <div className="flex flex-col items-center justify-center text-zinc-400" title={`Resumes: ${stats.totalResumes}`}>
+                  <svg className="w-4 h-4 text-orange-500/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25" />
+                  </svg>
+                  <span className="text-[9px] font-bold text-zinc-300 mt-0.5">{stats.totalResumes}</span>
+                </div>
+                <div className="flex flex-col items-center justify-center text-zinc-400" title={`Links: ${stats.totalLinks}`}>
+                  <svg className="w-4 h-4 text-orange-500/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5" />
+                  </svg>
+                  <span className="text-[9px] font-bold text-zinc-300 mt-0.5">{stats.totalLinks}</span>
+                </div>
+                <div className="flex flex-col items-center justify-center text-zinc-400" title={`Views: ${stats.totalViews}`}>
+                  <svg className="w-4 h-4 text-orange-500/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5" />
+                  </svg>
+                  <span className="text-[9px] font-bold text-zinc-300 mt-0.5">{stats.totalViews}</span>
+                </div>
+              </div>
+            )}
             {session?.user?.email && !isCollapsed && (
               <span className="text-xs text-zinc-400 truncate font-medium px-1 block" title={session.user.email}>
                 {session.user.email}
@@ -160,30 +237,64 @@ export default function DashboardLayoutClient({ session, children }: DashboardLa
                           : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50 border border-transparent"
                       }`}
                     >
-                      <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                      <svg className="w-5.5 h-5.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                       </svg>
-                      <span>Manage Resumes</span>
+                      <span className="text-base">Manage Resumes</span>
                     </Link>
                     <Link
                       href="/dashboard/create-link"
                       onClick={() => setIsMobileOpen(false)}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all cursor-pointer ${
+                      className={`flex items-center gap-3.5 px-4 py-3.5 rounded-lg font-semibold transition-all cursor-pointer ${
                         isCreateActive
                           ? "bg-orange-600/10 text-orange-500 border border-orange-500/20"
                           : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50 border border-transparent"
                       }`}
                     >
-                      <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+                      <svg className="w-5.5 h-5.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 00-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
                       </svg>
-                      <span>Create Link</span>
+                      <span className="text-base">Create Link</span>
                     </Link>
                   </nav>
                 </div>
 
                 {/* User profile / Logout bottom container */}
                 <div className="p-3 border-t border-zinc-800 flex flex-col gap-2.5 bg-zinc-900/40">
+                  {/* Stats section */}
+                  <div className="bg-zinc-950/60 border border-zinc-800/40 rounded-xl p-3 mb-1.5 flex flex-col gap-2.5">
+                    <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider px-1">Statistics</span>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center justify-between bg-zinc-900/30 border border-zinc-800/30 rounded-lg p-3" title={`${stats.totalResumes} Resumes`}>
+                        <div className="flex items-center gap-3">
+                          <svg className="w-5 h-5 text-orange-500/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5-3H12" />
+                          </svg>
+                          <span className="text-sm text-zinc-350 font-semibold">Total Resumes</span>
+                        </div>
+                        <span className="text-lg font-extrabold text-orange-500">{stats.totalResumes}</span>
+                      </div>
+                      <div className="flex items-center justify-between bg-zinc-900/30 border border-zinc-800/30 rounded-lg p-3" title={`${stats.totalLinks} Links`}>
+                        <div className="flex items-center gap-3">
+                          <svg className="w-5 h-5 text-orange-500/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+                          </svg>
+                          <span className="text-sm text-zinc-350 font-semibold">Total Links</span>
+                        </div>
+                        <span className="text-lg font-extrabold text-orange-500">{stats.totalLinks}</span>
+                      </div>
+                      <div className="flex items-center justify-between bg-zinc-900/30 border border-zinc-800/30 rounded-lg p-3" title={`${stats.totalViews} Views`}>
+                        <div className="flex items-center gap-3">
+                          <svg className="w-5 h-5 text-orange-500/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          <span className="text-sm text-zinc-350 font-semibold">Total Views</span>
+                        </div>
+                        <span className="text-lg font-extrabold text-orange-500">{stats.totalViews}</span>
+                      </div>
+                    </div>
+                  </div>
                   {session?.user?.email && (
                     <span className="text-xs text-zinc-400 truncate font-medium px-1 block" title={session.user.email}>
                       {session.user.email}
