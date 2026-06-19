@@ -27,6 +27,7 @@ export default function DashboardLayoutClient({ session, children }: DashboardLa
 
   const isManageActive = pathname === "/dashboard";
   const isCreateActive = pathname === "/dashboard/create-link";
+  const isAIAnalyzerActive = pathname === "/dashboard/ai-analyzer";
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -38,8 +39,6 @@ export default function DashboardLayoutClient({ session, children }: DashboardLa
       }
     };
     fetchStats();
-    const interval = setInterval(fetchStats, 10000);
-    return () => clearInterval(interval);
   }, [pathname]);
 
   return (
@@ -120,6 +119,22 @@ export default function DashboardLayoutClient({ session, children }: DashboardLa
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 00-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
                 </svg>
                 {!isCollapsed && <span className="text-base">Create Link</span>}
+              </Link>
+              <Link
+                href="/dashboard/ai-analyzer"
+                className={`flex items-center gap-3.5 py-3.5 rounded-lg font-semibold transition-all cursor-pointer ${
+                  isCollapsed ? "justify-center px-0" : "px-4"
+                } ${
+                  isAIAnalyzerActive
+                    ? "bg-orange-600/10 text-orange-500 border border-orange-500/20"
+                    : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50 border border-transparent"
+                }`}
+                title={isCollapsed ? "AI Analyzer" : undefined}
+              >
+                <svg className="w-5.5 h-5.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 21l8.904-4.813M21 3L9.813 14.187M21 3l-8 12.187m8-12.187v8m0-8h-8" />
+                </svg>
+                {!isCollapsed && <span className="text-base">AI Analyzer</span>}
               </Link>
             </nav>
           </div>
@@ -255,6 +270,20 @@ export default function DashboardLayoutClient({ session, children }: DashboardLa
                         <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 00-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
                       </svg>
                       <span className="text-base">Create Link</span>
+                    </Link>
+                    <Link
+                      href="/dashboard/ai-analyzer"
+                      onClick={() => setIsMobileOpen(false)}
+                      className={`flex items-center gap-3.5 px-4 py-3.5 rounded-lg font-semibold transition-all cursor-pointer ${
+                        isAIAnalyzerActive
+                          ? "bg-orange-600/10 text-orange-500 border border-orange-500/20"
+                          : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50 border border-transparent"
+                      }`}
+                    >
+                      <svg className="w-5.5 h-5.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 21l8.904-4.813M21 3L9.813 14.187M21 3l-8 12.187m8-12.187v8m0-8h-8" />
+                      </svg>
+                      <span className="text-base">AI Analyzer</span>
                     </Link>
                   </nav>
                 </div>
