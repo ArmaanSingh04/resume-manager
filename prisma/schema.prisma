@@ -19,6 +19,7 @@ model User {
 
   files File[]
   links Link[]
+  feedbacks Feedback[]
 }
 
 model File {
@@ -69,4 +70,18 @@ model FileVisitor {
 
   @@unique([fileId, visitorId])
   @@index([fileId])
+}
+
+model Feedback {
+  id              Int      @id @default(autoincrement())
+  rating          Int
+  mostUsedFeature String
+  mostUsedOther   String?
+  feedbackType    String
+  comments        String
+  featureRequest  String?
+  recommend       String
+  userId          Int
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
 }

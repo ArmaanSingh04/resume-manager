@@ -54,12 +54,12 @@ export default function AIAnalyzerClient() {
   const [jobDescription, setJobDescription] = useState("");
   const [isDragActive, setIsDragActive] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  
+
   // Stored analysis result
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [rawText, setRawText] = useState<string | null>(null);
   const [rawJobDesc, setRawJobDesc] = useState<string | null>(null);
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDrag = (e: DragEvent<HTMLDivElement>) => {
@@ -78,14 +78,24 @@ export default function AIAnalyzerClient() {
     setIsDragActive(false);
 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setFile(e.dataTransfer.files[0]);
+      const droppedFile = e.dataTransfer.files[0];
+      if (droppedFile.name.toLowerCase().endsWith(".pdf")) {
+        setFile(droppedFile);
+      } else {
+        alert("Please upload a PDF file only.");
+      }
     }
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+      const selectedFile = e.target.files[0];
+      if (selectedFile.name.toLowerCase().endsWith(".pdf")) {
+        setFile(selectedFile);
+      } else {
+        alert("Please upload a PDF file only.");
+      }
     }
   };
 
@@ -109,10 +119,6 @@ export default function AIAnalyzerClient() {
       setRawJobDesc(result.jobDescription);
       setAnalysis(result.analysis as AnalysisResult);
 
-      // Print extracted text and job description to browser console
-      console.log("Resume received successfully");
-      console.log("Extracted Resume Text:", result.extractedText);
-      console.log("Job Description:", result.jobDescription);
     } catch (error: any) {
       console.error("Failed to analyze resume:", error);
       const errMsg = error?.message || String(error);
@@ -155,7 +161,7 @@ export default function AIAnalyzerClient() {
             AI Resume Analyzer
           </h1>
           <p className="text-zinc-400 text-xs mt-1">
-            Compare your resume with a target job description using gpt-4o-mini.
+            Compare your resume with a target job description using AI
           </p>
         </div>
 
@@ -176,29 +182,23 @@ export default function AIAnalyzerClient() {
       {/* Main Container */}
       <div className="flex-1 flex items-stretch justify-center">
         {isAnalyzing ? (
-          /* Analyzing State */
-          <div className="w-full max-w-md p-8 rounded-2xl bg-zinc-900/40 border border-zinc-800 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in duration-300 my-12">
-            <div className="relative w-16 h-16 mb-6">
+          /* Analyzing State - Show loader in middle of screen container with NO background card and NO text, just the spinner */
+          <div className="flex-1 flex items-center justify-center w-full h-full min-h-[300px] animate-in fade-in duration-200">
+            <div className="relative w-16 h-16">
               <div className="absolute inset-0 rounded-full border-4 border-zinc-800"></div>
               <div className="absolute inset-0 rounded-full border-4 border-orange-500 border-t-transparent animate-spin"></div>
             </div>
-            <h3 className="text-lg font-bold text-zinc-200 mb-1.5 tracking-wide">
-              Analyzing...
-            </h3>
-            <p className="text-zinc-550 text-xs">
-              Sending resume metadata to OpenAI gpt-4o-mini
-            </p>
           </div>
         ) : !analysis ? (
           /* Input and Upload Form in Middle of Screen */
-          <div className="w-full max-w-xl bg-zinc-900/30 border border-zinc-800/80 rounded-2xl p-6 sm:p-8 flex flex-col gap-6 backdrop-blur-md self-center">
-            
+          <div className="w-full max-w-xl p-6 sm:p-8 flex flex-col gap-6 self-center">
+
             {/* File Dropzone */}
             <div className="flex flex-col gap-2">
               <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
-                Upload Resume (PDF preferred)
+                Upload Resume (PDF only)
               </label>
-              
+
               {!file ? (
                 <div
                   onDragEnter={handleDrag}
@@ -206,24 +206,23 @@ export default function AIAnalyzerClient() {
                   onDragLeave={handleDrag}
                   onDrop={handleDrop}
                   onClick={onButtonClick}
-                  className={`border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 ${
-                    isDragActive
-                      ? "border-orange-500 bg-orange-600/5"
-                      : "border-zinc-800 bg-zinc-950/40 hover:border-orange-500/40 hover:bg-zinc-900/20"
-                  }`}
+                  className={`bg-zinc-900/40 border border-zinc-800 rounded-xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 ${isDragActive
+                    ? "bg-orange-600/10 border-orange-500/30"
+                    : "hover:bg-zinc-900/60 hover:border-orange-500/20"
+                    }`}
                 >
                   <input
                     ref={fileInputRef}
                     type="file"
                     className="hidden"
-                    accept=".pdf,.docx,.txt,.doc"
+                    accept=".pdf"
                     onChange={handleChange}
                   />
                   <svg className="w-10 h-10 text-zinc-500 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5h10.5a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0016.5 4.5H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25z" />
                   </svg>
                   <span className="text-sm font-bold text-zinc-200">Drag & drop your file or browse</span>
-                  <span className="text-xs text-zinc-500 mt-1">Supports PDF, DOCX, TXT up to 10MB</span>
+                  <span className="text-xs text-zinc-500 mt-1">Supports PDF only up to 10MB</span>
                 </div>
               ) : (
                 <div className="bg-zinc-950/60 border border-zinc-800 rounded-xl p-4 flex items-center justify-between">
@@ -286,10 +285,10 @@ export default function AIAnalyzerClient() {
         ) : (
           /* Results Dashboard displaying analyzed data */
           <div className="w-full flex flex-col gap-6 animate-in fade-in slide-in-from-bottom duration-300">
-            
+
             {/* Top Scores & Metrics Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              
+
               {/* Circular Gauge Card */}
               <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 flex flex-col items-center justify-center text-center relative overflow-hidden group shadow-lg">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.02)_0,transparent_60%)] pointer-events-none" />
@@ -297,7 +296,7 @@ export default function AIAnalyzerClient() {
                   <span className="text-4xl font-extrabold font-mono tracking-tight">{analysis.overallScore}</span>
                   <span className="text-[10px] text-zinc-450 font-bold uppercase tracking-widest mt-1">Overall Score</span>
                 </div>
-                
+
                 {/* Level / Domain pill */}
                 <div className="flex gap-2 mt-4 flex-wrap justify-center">
                   <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-zinc-950 border border-zinc-800 text-zinc-300">
@@ -312,7 +311,7 @@ export default function AIAnalyzerClient() {
               {/* Subscores breakdown Progress Bars */}
               <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 flex flex-col justify-between gap-4 shadow-lg md:col-span-2">
                 <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Metric Scores</h3>
-                
+
                 <div className="flex flex-col gap-3.5">
                   {[
                     { label: "ATS Compatibility", val: analysis.scores.ats },
@@ -347,7 +346,7 @@ export default function AIAnalyzerClient() {
                   </svg>
                   Recruiter Perspective
                 </h3>
-                
+
                 {analysis.recruiterPerspective.wouldInterview ? (
                   <span className="text-xs px-3 py-1 rounded-full font-bold flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -360,7 +359,7 @@ export default function AIAnalyzerClient() {
                   </span>
                 )}
               </div>
-              
+
               <div className="flex flex-col gap-3 text-sm leading-relaxed">
                 <div className="bg-zinc-950/40 p-4 rounded-xl border border-zinc-800/60">
                   <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Overall Assessment Summary</h4>
@@ -432,7 +431,7 @@ export default function AIAnalyzerClient() {
 
             {/* Skills & ATS Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              
+
               {/* Skills Analysis */}
               <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-lg flex flex-col gap-4">
                 <h3 className="text-sm font-bold text-zinc-200 border-b border-zinc-800 pb-3 flex items-center gap-2">
@@ -611,18 +610,18 @@ export default function AIAnalyzerClient() {
                   analysis.recommendations.map((rec, i) => {
                     const isHigh = rec.priority?.toLowerCase() === "high";
                     const isMed = rec.priority?.toLowerCase() === "medium";
-                    
+
                     const badgeClass = isHigh
                       ? "bg-rose-500/10 border-rose-500/20 text-rose-400"
                       : isMed
-                      ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
-                      : "bg-zinc-800 border-zinc-700 text-zinc-300";
+                        ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
+                        : "bg-zinc-800 border-zinc-700 text-zinc-300";
 
                     const borderClass = isHigh
                       ? "border-rose-500/20 hover:border-rose-500/40"
                       : isMed
-                      ? "border-amber-500/20 hover:border-amber-500/40"
-                      : "border-zinc-800 hover:border-zinc-700";
+                        ? "border-amber-500/20 hover:border-amber-500/40"
+                        : "border-zinc-800 hover:border-zinc-700";
 
                     return (
                       <div key={i} className={`bg-zinc-950/40 border p-4 rounded-xl flex flex-col gap-2.5 transition-colors ${borderClass}`}>
@@ -662,7 +661,7 @@ export default function AIAnalyzerClient() {
                 </div>
               </details>
             </div>
-            
+
           </div>
         )}
       </div>

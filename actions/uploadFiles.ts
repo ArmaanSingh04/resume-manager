@@ -18,6 +18,10 @@ export async function uploadFiles(formData: FormData) {
     for(const file of files){
         if(file.size == 0) continue;
 
+        if (!file.name.toLowerCase().endsWith(".pdf")) {
+            throw new Error("Only PDF files are allowed.");
+        }
+
         const buffer = Buffer.from(await file.arrayBuffer());
         const key = `${session.user.id}/${crypto.randomUUID()}-${file.name}`;
         

@@ -63,7 +63,15 @@ export default function ManageResumesClient({ initialFiles }: ManageResumesClien
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setSelectedFiles(Array.from(e.target.files));
+      const filesArray = Array.from(e.target.files);
+      const invalidFiles = filesArray.filter(f => !f.name.toLowerCase().endsWith(".pdf"));
+      if (invalidFiles.length > 0) {
+        alert("Only PDF files are supported. Please select PDF files only.");
+        const validFiles = filesArray.filter(f => f.name.toLowerCase().endsWith(".pdf"));
+        setSelectedFiles(validFiles);
+      } else {
+        setSelectedFiles(filesArray);
+      }
     }
   };
 
@@ -123,7 +131,7 @@ export default function ManageResumesClient({ initialFiles }: ManageResumesClien
           </div>
           <h3 className="text-lg font-semibold text-zinc-200 mb-1">No resumes uploaded yet</h3>
           <p className="text-zinc-500 text-sm max-w-sm mb-6">
-            Upload your resumes to manage and create sharing links.
+            Upload your resumes (PDF only) to manage and create sharing links.
           </p>
           <button
             onClick={() => setIsUploadModalOpen(true)}
@@ -236,7 +244,7 @@ export default function ManageResumesClient({ initialFiles }: ManageResumesClien
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-zinc-800 pb-3 mb-4">
               <span className="text-lg font-bold text-orange-500 tracking-wide">
-                Upload Resumes
+                Upload Resumes (PDF only)
               </span>
               <button
                 type="button"
@@ -260,13 +268,14 @@ export default function ManageResumesClient({ initialFiles }: ManageResumesClien
                     type="file"
                     name="files"
                     multiple
+                    accept=".pdf"
                     disabled={isUploading}
                     className="hidden"
                     onChange={handleFileChange}
                   />
                 </label>
-                <span className="text-zinc-500 text-xs mt-2.5">
-                  Select one or multiple files
+                <span className="text-zinc-550 text-xs mt-2.5">
+                  Select PDF files only
                 </span>
               </div>
 

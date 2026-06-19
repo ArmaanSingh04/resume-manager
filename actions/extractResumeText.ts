@@ -87,21 +87,20 @@ export async function extractResumeText(formData: FormData) {
     throw new Error("No file uploaded");
   }
 
+  if (!file.name.toLowerCase().endsWith(".pdf")) {
+    throw new Error("Only PDF files are supported. Please upload a PDF file.");
+  }
+
   const buffer = Buffer.from(await file.arrayBuffer());
   let extractedText = "";
 
-  if (file.name.endsWith(".pdf")) {
-    try {
-      const parser = new PDFParse({ data: buffer });
-      const textResult = await parser.getText();
-      extractedText = textResult.text;
-    } catch (err: any) {
-      console.error("Error parsing PDF file:", err);
-      throw new Error(`Failed to parse PDF: ${err.message}`);
-    }
-  } else {
-    // Fallback to text parsing for txt/md/etc.
-    extractedText = buffer.toString("utf-8");
+  try {
+    const parser = new PDFParse({ data: buffer });
+    const textResult = await parser.getText();
+    extractedText = textResult.text;
+  } catch (err: any) {
+    console.error("Error parsing PDF file:", err);
+    throw new Error(`Failed to parse PDF: ${err.message}`);
   }
 
   // Verify API Key
@@ -149,17 +148,7 @@ export async function extractResumeText(formData: FormData) {
     throw new Error(`Failed to analyze resume via OpenAI: ${err.message}`);
   }
 
-  // Print the extracted text and the job description in the server console
-  console.log("=========================================");
-  console.log("EXTRACTED RESUME TEXT (from server action):");
-  console.log(extractedText);
-  console.log("=========================================");
-  console.log("JOB DESCRIPTION (from server action):");
-  console.log(jobDescription);
-  console.log("=========================================");
-  console.log("OPENAI ANALYSIS RESPONSE:");
-  console.log(JSON.stringify(analysis, null, 2));
-  console.log("=========================================");
+
 
   return {
     extractedText,

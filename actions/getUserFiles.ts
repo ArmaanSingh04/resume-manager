@@ -18,6 +18,5 @@ export async function getUserFiles(){
         }
     });
 
-    console.log(files);
     return files;
 }

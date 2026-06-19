@@ -25,7 +25,6 @@ export const authOptions : NextAuthOptions = {
                 if(user){
                     // check for password
                     if(user.password == credPassword){
-                        console.log(user);
                         return {
                             id: user.id.toString(),
                             email: user.email
