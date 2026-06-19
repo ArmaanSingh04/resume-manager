@@ -18,10 +18,10 @@ export default function Login() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-zinc-950 px-4">
+        <div className="min-h-screen flex items-center justify-center bg-zinc-950 px-4 auth-container">
             <div className="w-full max-w-md rounded-xl bg-zinc-900 border border-zinc-800 p-8 shadow-2xl">
                 <h1 className="mb-2 text-center text-3xl font-extrabold tracking-wide text-orange-500">
-                    Login
+                    Welcome back!
                 </h1>
                 <p className="text-center text-sm text-zinc-400 mb-8">
                     Access your resume dashboard
