@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { uploadFiles } from "@/actions/uploadFiles";
 import { getUserFiles } from "@/actions/getUserFiles";
 import { deleteFile } from "@/actions/deleteFile";
@@ -19,6 +19,11 @@ interface ManageResumesClientProps {
 }
 
 export default function ManageResumesClient({ initialFiles }: ManageResumesClientProps) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const [files, setFiles] = useState<ClientFile[]>(initialFiles);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -211,10 +216,15 @@ export default function ManageResumesClient({ initialFiles }: ManageResumesClien
                     {file.fileName}
                   </h4>
                   <p className="text-xs text-zinc-550 mt-1">
-                    Uploaded {new Date(file.createdAt).toLocaleDateString(undefined, {
+                    Uploaded {mounted ? new Date(file.createdAt).toLocaleDateString(undefined, {
                       year: 'numeric',
                       month: 'short',
                       day: 'numeric'
+                    }) : new Date(file.createdAt).toLocaleDateString("en-US", {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      timeZone: 'UTC'
                     })}
                   </p>
                 </div>

@@ -39,6 +39,16 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+::selection {
+  background: rgba(249, 248, 113, 0.25);
+  color: #ffffff;
+}
+
+::-moz-selection {
+  background: rgba(249, 248, 113, 0.25);
+  color: #ffffff;
+}
+
 /* 
   Ensure high-contrast dark text on bright yellow buttons and active states.
   This preserves readability for text and icons inheriting color.

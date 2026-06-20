@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from "react";
 import Link from "next/link";
 import { Navbar1 } from "./navbar-1";
+import { ArrowRight, ChevronDown } from "lucide-react";
 
 interface MinimalHeroProps {
   hasSession?: boolean;
@@ -76,7 +77,6 @@ export default function MinimalHero({ hasSession = false }: MinimalHeroProps) {
           p.opacity -= 0.008;
           if (p.opacity <= 0) reset(p);
         }
-        // Draw yellow particles: RGB for #f9f871 is (249, 248, 113)
         ctx.fillStyle = `rgba(249, 248, 113, ${p.opacity})`;
         ctx.fillRect(p.x, p.y, 0.6, Math.random() * 2 + 1);
       });
@@ -112,124 +112,36 @@ export default function MinimalHero({ hasSession = false }: MinimalHeroProps) {
 .minimal-root {
   position: relative;
   width: 100%;
-  height: 95vh;
+  height: 100vh;
   overflow: hidden;
 
   --bg: #111010;
   --fg: #ffffff;
-  --muted: #aaaaaf;
+  --muted: #9696a5;
+  --muted-light: #aaaaaf;
   --border: #292813;
+  --border-subtle: #1e1d12;
   --accent: #f9f871;
+  --accent-light: #fffc94;
+  --accent-dim: rgba(249, 248, 113, 0.12);
+  --accent-glow: rgba(249, 248, 113, 0.18);
 
   background: var(--bg);
   color: var(--fg);
   font-family: 'Hubot Sans', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
 }
 
-/* header */
-.header {
+/* Radial glow behind hero content */
+.hero-glow {
   position: absolute;
-  top: 0; left: 0; right: 0;
-  padding: 20px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--border);
-  z-index: 10;
-}
-.brand {
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--accent);
-  text-decoration: none;
-}
-.cta {
-  display: inline-block;
-  height: 36px;
-  padding: 0 16px;
-  border-radius: 9999px;
-  background: var(--accent);
-  color: #111010;
-  font-weight: 600;
-  font-size: 13px;
-  line-height: 36px;
-  text-decoration: none;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  border: none;
-}
-.cta:hover {
-  background: #fffc94;
-  transform: scale(1.02);
-}
-.cta:active {
-  transform: scale(0.98);
-}
-
-/* hero center */
-.hero {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  text-align: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%);
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(ellipse at center, rgba(249,248,113,0.07) 0%, rgba(249,248,113,0.03) 40%, transparent 70%);
   pointer-events: none;
-  z-index: 5;
-}
-.kicker {
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 14px;
-}
-.title {
-  font-weight: 600;
-  font-size: clamp(32px, 8vw, 88px);
-  line-height: 0.95;
-  margin: 0;
-  color: var(--fg);
-  text-shadow: none;
-}
-.yellow-glow {
-  color: var(--accent);
-  text-shadow: 0 0 30px rgba(249, 248, 113, 0.35);
-}
-.subtitle {
-  margin-top: 18px;
-  font-size: clamp(14px, 2.2vw, 18px);
-  color: var(--muted);
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-}
-.hero-cta-wrapper {
-  margin-top: 28px;
-  pointer-events: auto;
-}
-.hero-cta {
-  display: inline-block;
-  padding: 12px 28px;
-  border-radius: 12px;
-  background: var(--accent);
-  color: #111010;
-  font-weight: 700;
-  font-size: 16px;
-  text-decoration: none;
-  transition: all 0.2s ease;
-  box-shadow: 0 10px 25px -5px rgba(249, 248, 113, 0.25);
-  border: none;
-  cursor: pointer;
-}
-.hero-cta:hover {
-  background: #fffc94;
-  transform: translateY(-2px);
-  box-shadow: 0 15px 30px -5px rgba(249, 248, 113, 0.35);
-}
-.hero-cta:active {
-  transform: translateY(0);
+  z-index: 3;
 }
 
 /* accent lines container */
@@ -243,8 +155,8 @@ export default function MinimalHero({ hasSession = false }: MinimalHeroProps) {
 /* base line visuals */
 .hline, .vline {
   position: absolute;
-  background: var(--border);
-  opacity: .75;
+  background: var(--border-subtle);
+  opacity: .6;
   will-change: transform, opacity;
 }
 
@@ -253,7 +165,7 @@ export default function MinimalHero({ hasSession = false }: MinimalHeroProps) {
   height: 1px; left: 0; right: 0;
   transform: scaleX(0);
   transform-origin: 50% 50%;
-  animation: drawX 800ms cubic-bezier(.22,.61,.36,1) forwards;
+  animation: drawX 900ms cubic-bezier(.22,.61,.36,1) forwards;
 }
 .hline:nth-child(1){ top: 20%; animation-delay: 150ms; }
 .hline:nth-child(2){ top: 50%; animation-delay: 280ms; }
@@ -264,7 +176,7 @@ export default function MinimalHero({ hasSession = false }: MinimalHeroProps) {
   width: 1px; top: 0; bottom: 0;
   transform: scaleY(0);
   transform-origin: 50% 0%;
-  animation: drawY 900ms cubic-bezier(.22,.61,.36,1) forwards;
+  animation: drawY 1000ms cubic-bezier(.22,.61,.36,1) forwards;
 }
 .vline:nth-child(4){ left: 20%; animation-delay: 520ms; }
 .vline:nth-child(5){ left: 50%; animation-delay: 640ms; }
@@ -275,7 +187,7 @@ export default function MinimalHero({ hasSession = false }: MinimalHeroProps) {
   content:"";
   position:absolute;
   inset:0;
-  background: linear-gradient(90deg, transparent, rgba(249, 248, 113, 0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(249, 248, 113, 0.15), transparent);
   opacity:0;
   animation: shimmer 900ms ease-out forwards;
 }
@@ -289,18 +201,34 @@ export default function MinimalHero({ hasSession = false }: MinimalHeroProps) {
 /* keyframes */
 @keyframes drawX {
   0% { transform: scaleX(0); opacity: 0; }
-  60% { opacity: .9; }
-  100% { transform: scaleX(1); opacity: .75; }
+  60% { opacity: .7; }
+  100% { transform: scaleX(1); opacity: .6; }
 }
 @keyframes drawY {
   0% { transform: scaleY(0); opacity: 0; }
-  60% { opacity: .9; }
-  100% { transform: scaleY(1); opacity: .75; }
+  60% { opacity: .7; }
+  100% { transform: scaleY(1); opacity: .6; }
 }
 @keyframes shimmer {
   0% { opacity: .0; }
-  30% { opacity: .25; }
+  30% { opacity: .2; }
   100% { opacity: 0; }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(249,248,113,0); }
+  50%       { box-shadow: 0 0 20px 4px rgba(249,248,113,0.12); }
+}
+@keyframes bounce-arrow {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(5px); }
 }
 
 /* canvas */
@@ -311,39 +239,190 @@ export default function MinimalHero({ hasSession = false }: MinimalHeroProps) {
   height: 100%;
   pointer-events: none;
   mix-blend-mode: screen;
-  opacity: .6;
+  opacity: .5;
   z-index: 2;
 }
 
-/* footer section (copy) */
-.content {
+/* hero center */
+.hero {
   position: absolute;
-  left: 0; right: 0; bottom: 0;
-  padding: 32px 24px;
-  border-top: 1px solid var(--border);
+  inset: 0;
   display: grid;
   place-items: center;
   text-align: center;
-  gap: 6px;
-  z-index: 10;
-  background: rgba(17, 16, 16, 0.65);
-  backdrop-filter: blur(8px);
+  z-index: 5;
+  padding: 0 24px;
 }
-.content .tag {
-  font-size: 12px;
+
+.hero-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  animation: fadeUp 0.8s cubic-bezier(.22,.61,.36,1) both;
+}
+
+/* Eyebrow badge */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 14px;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  background: rgba(249,248,113,0.06);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--accent);
-  letter-spacing: 0.08em;
+  margin-bottom: 24px;
+  animation: fadeUp 0.8s 0.1s cubic-bezier(.22,.61,.36,1) both;
+}
+.eyebrow-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+  animation: pulse-glow 2.5s ease-in-out infinite;
+}
+
+/* Main title */
+.title {
+  font-weight: 700;
+  font-size: clamp(36px, 8vw, 92px);
+  line-height: 0.95;
+  margin: 0;
+  color: var(--fg);
+  letter-spacing: -0.02em;
+  animation: fadeUp 0.8s 0.2s cubic-bezier(.22,.61,.36,1) both;
+}
+.yellow-glow {
+  color: var(--accent);
+  text-shadow: 0 0 40px rgba(249, 248, 113, 0.3);
+}
+
+/* Subtitle */
+.subtitle {
+  margin-top: 20px;
+  font-size: clamp(15px, 2vw, 18px);
+  color: var(--muted);
+  max-width: 520px;
+  line-height: 1.65;
+  animation: fadeUp 0.8s 0.3s cubic-bezier(.22,.61,.36,1) both;
+}
+
+/* CTA group */
+.hero-cta-wrapper {
+  margin-top: 36px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  pointer-events: auto;
+  flex-wrap: wrap;
+  justify-content: center;
+  animation: fadeUp 0.8s 0.4s cubic-bezier(.22,.61,.36,1) both;
+}
+.hero-cta-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 28px;
+  border-radius: 12px;
+  background: var(--accent);
+  color: #111010;
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+  transition: all 0.22s ease;
+  box-shadow: 0 8px 32px -4px rgba(249, 248, 113, 0.3);
+  border: none;
+  cursor: pointer;
+}
+.hero-cta-primary:hover {
+  background: var(--accent-light);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 36px -4px rgba(249, 248, 113, 0.4);
+}
+.hero-cta-primary:active { transform: translateY(0); }
+.hero-cta-primary svg { transition: transform 0.2s ease; }
+.hero-cta-primary:hover svg { transform: translateX(3px); }
+
+.hero-cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 13px 22px;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--muted-light);
+  font-weight: 500;
+  font-size: 15px;
+  text-decoration: none;
+  transition: all 0.22s ease;
+  border: 1px solid rgba(255,255,255,0.1);
+  cursor: pointer;
+}
+.hero-cta-secondary:hover {
+  color: var(--fg);
+  border-color: rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.04);
+}
+
+/* Stats bar */
+.stats-bar {
+  margin-top: 52px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  animation: fadeUp 0.8s 0.55s cubic-bezier(.22,.61,.36,1) both;
+  pointer-events: auto;
+}
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--fg);
+  letter-spacing: -0.01em;
+}
+.stat-label {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
-.content .heading {
-  font-size: 22px;
-  font-weight: 600;
-  color: var(--fg);
+.stat-divider {
+  width: 1px;
+  height: 32px;
+  background: var(--border);
+  opacity: 0.7;
 }
-.content .desc {
-  font-size: 14px;
+
+/* Scroll indicator */
+.scroll-hint {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
   color: var(--muted);
-  max-width: 680px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  pointer-events: none;
+  animation: fadeIn 1s 1.2s both;
+}
+.scroll-arrow {
+  animation: bounce-arrow 1.8s ease-in-out infinite;
 }
       `}</style>
 
@@ -352,10 +431,13 @@ export default function MinimalHero({ hasSession = false }: MinimalHeroProps) {
         <Navbar1 hasSession={hasSession} />
       </div>
 
+      {/* Radial glow */}
+      <div className="hero-glow" />
+
       {/* Particles */}
       <canvas ref={canvasRef} className="particleCanvas" />
 
-      {/* Accent Lines (animated on mount) */}
+      {/* Accent Lines */}
       <div className="accent-lines">
         <div className="hline" />
         <div className="hline" />
@@ -365,28 +447,77 @@ export default function MinimalHero({ hasSession = false }: MinimalHeroProps) {
         <div className="vline" />
       </div>
 
-      {/* Hero */}
+      {/* Hero Content */}
       <main className="hero">
-        <div>
+        <div className="hero-inner">
+          {/* Eyebrow */}
+          <div className="eyebrow">
+            <span className="eyebrow-dot" />
+            Resume Management, Reimagined
+          </div>
+
+          {/* Title */}
           <h1 className="title">
             <span className="yellow-glow">Share</span> your resume<br />on your <span className="yellow-glow">terms</span>.
           </h1>
+
+          {/* Subtitle */}
           <p className="subtitle">
-            Upload, organize, and manage all your resumes in one place. Create secure public or private links, update documents anytime, and share with confidence.
+            Upload, organize, and share all your resumes from one place. Create permanent links, swap documents silently, and track every recruiter visit.
           </p>
+
+          {/* CTA Buttons */}
           <div className="hero-cta-wrapper">
             {hasSession ? (
-              <Link className="hero-cta" href="/dashboard">
-                Go to your Dashboard
-              </Link>
+              <>
+                <Link className="hero-cta-primary" href="/dashboard">
+                  Go to Dashboard
+                  <ArrowRight size={16} />
+                </Link>
+                <Link className="hero-cta-secondary" href="/#features">
+                  Explore features
+                </Link>
+              </>
             ) : (
-              <Link className="hero-cta" href="/register">
-                Get Started
-              </Link>
+              <>
+                <Link className="hero-cta-primary" href="/register">
+                  Get Started — it&apos;s free
+                  <ArrowRight size={16} />
+                </Link>
+                <Link className="hero-cta-secondary" href="/login">
+                  Sign in
+                </Link>
+              </>
             )}
+          </div>
+
+          {/* Stats */}
+          <div className="stats-bar">
+            <div className="stat-item">
+              <span className="stat-value">1 Link</span>
+              <span className="stat-label">Forever</span>
+            </div>
+            <div className="stat-divider" />
+            <div className="stat-item">
+              <span className="stat-value">Real-time</span>
+              <span className="stat-label">View Tracking</span>
+            </div>
+            <div className="stat-divider" />
+            <div className="stat-item">
+              <span className="stat-value">AI</span>
+              <span className="stat-label">Feedback</span>
+            </div>
           </div>
         </div>
       </main>
+
+      {/* Scroll hint */}
+      <div className="scroll-hint">
+        <span>Scroll</span>
+        <span className="scroll-arrow">
+          <ChevronDown size={14} />
+        </span>
+      </div>
     </section>
   );
 }

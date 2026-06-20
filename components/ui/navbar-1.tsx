@@ -19,7 +19,7 @@ const Navbar1 = ({ hasSession = false }: Navbar1Props) => {
     { name: "Home", href: "/" },
     { name: "About us", href: "/#about-us" },
     { name: "Features", href: "/#features" },
-    { name: "How to use?", href: "/#how-to-use" }
+    { name: "How it works", href: "/#how-it-works" }
   ];
 
   return (

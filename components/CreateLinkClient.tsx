@@ -213,10 +213,15 @@ export default function CreateLinkClient({ initialLinks, initialFiles }: CreateL
                     {link.file ? link.file.fileName : "No resume attached (Broken Link)"}
                   </h4>
                   <p className="text-xs text-zinc-500 mt-1">
-                    Created {new Date(link.createdAt).toLocaleDateString(undefined, {
+                    Created {mounted ? new Date(link.createdAt).toLocaleDateString(undefined, {
                       year: 'numeric',
                       month: 'short',
                       day: 'numeric'
+                    }) : new Date(link.createdAt).toLocaleDateString("en-US", {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      timeZone: 'UTC'
                     })}
                   </p>
                 </div>
