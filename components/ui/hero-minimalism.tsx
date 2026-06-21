@@ -230,6 +230,98 @@ export default function MinimalHero({ hasSession = false }: MinimalHeroProps) {
   0%, 100% { transform: translateY(0); }
   50%       { transform: translateY(5px); }
 }
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-14px); }
+}
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px) rotate(-1deg); }
+  50%       { transform: translateY(-9px) rotate(1deg); }
+}
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 30px -6px rgba(249,248,113,0.15), 0 20px 60px -20px rgba(0,0,0,0.6); }
+  50%       { box-shadow: 0 0 50px -4px rgba(249,248,113,0.25), 0 20px 60px -20px rgba(0,0,0,0.6); }
+}
+
+/* Floating card */
+.float-card-wrap {
+  position: absolute;
+  right: 6%;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  pointer-events: none;
+  display: none;
+  animation: fadeIn 1s 0.8s both;
+}
+@media (min-width: 1100px) {
+  .float-card-wrap { display: block; }
+}
+.float-card {
+  width: 210px;
+  background: linear-gradient(145deg, #1a1a17, #141410);
+  border: 1px solid rgba(249,248,113,0.15);
+  border-radius: 16px;
+  padding: 20px;
+  animation: float 4.5s ease-in-out infinite, glow-pulse 4.5s ease-in-out infinite;
+}
+.float-card-ghost {
+  width: 210px;
+  background: linear-gradient(145deg, #161614, #111010);
+  border: 1px solid rgba(249,248,113,0.07);
+  border-radius: 16px;
+  padding: 20px;
+  margin-top: 16px;
+  opacity: 0.5;
+  animation: float-slow 5.5s ease-in-out 0.8s infinite;
+  box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
+}
+.fc-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.fc-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #f9f871;
+  opacity: 0.85;
+}
+.fc-label {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(249,248,113,0.6);
+}
+.fc-line {
+  height: 6px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.07);
+  margin-bottom: 7px;
+}
+.fc-line.w-full  { width: 100%; }
+.fc-line.w-three { width: 75%; }
+.fc-line.w-half  { width: 50%; }
+.fc-line.w-two   { width: 60%; }
+.fc-line.accent  { background: rgba(249,248,113,0.18); height: 7px; }
+.fc-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.05);
+  margin: 12px 0;
+}
+.fc-tag {
+  display: inline-block;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #111010;
+  background: #f9f871;
+  border-radius: 4px;
+  padding: 2px 7px;
+  margin-bottom: 10px;
+  opacity: 0.9;
+}
 
 /* canvas */
 .particleCanvas {
@@ -433,6 +525,36 @@ export default function MinimalHero({ hasSession = false }: MinimalHeroProps) {
 
       {/* Radial glow */}
       <div className="hero-glow" />
+
+      {/* Floating breathing card */}
+      <div className="float-card-wrap">
+        <div className="float-card">
+          <div className="fc-header">
+            <span className="fc-dot" />
+            <span className="fc-label">Resume · Active</span>
+          </div>
+          <span className="fc-tag">Software Engineer</span>
+          <div className="fc-line w-full" />
+          <div className="fc-line w-three" />
+          <div className="fc-line accent" />
+          <div className="fc-divider" />
+          <div className="fc-line w-full" />
+          <div className="fc-line w-two" />
+          <div className="fc-line w-half" />
+          <div className="fc-divider" />
+          <div className="fc-line w-three" />
+          <div className="fc-line w-full" />
+        </div>
+        <div className="float-card-ghost">
+          <div className="fc-header">
+            <span className="fc-dot" style={{ opacity: 0.3 }} />
+            <span className="fc-label" style={{ opacity: 0.5 }}>Resume · v2</span>
+          </div>
+          <div className="fc-line w-full" />
+          <div className="fc-line w-three" />
+          <div className="fc-line w-half" />
+        </div>
+      </div>
 
       {/* Particles */}
       <canvas ref={canvasRef} className="particleCanvas" />

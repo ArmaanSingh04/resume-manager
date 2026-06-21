@@ -64,9 +64,8 @@ export default function DashboardLayoutClient({ session, children }: DashboardLa
       <div className="flex flex-1 overflow-hidden relative">
         {/* Desktop Sidebar (visible on sm and larger screens) */}
         <aside
-          className={`hidden sm:flex bg-zinc-900 border-r border-zinc-800 flex-col shrink-0 justify-between transition-all duration-300 ease-in-out ${
-            isCollapsed ? "w-16" : "w-64"
-          }`}
+          className={`hidden sm:flex bg-zinc-900 border-r border-zinc-800 flex-col shrink-0 justify-between transition-all duration-300 ease-in-out ${isCollapsed ? "w-16" : "w-64"
+            }`}
         >
           <div className="flex flex-col">
             {/* Sidebar Header with Brand and Hamburger inside left panel */}
@@ -91,13 +90,11 @@ export default function DashboardLayoutClient({ session, children }: DashboardLa
             <nav className="p-3 flex flex-col gap-2">
               <Link
                 href="/dashboard"
-                className={`flex items-center gap-3.5 py-3.5 rounded-lg font-semibold transition-all cursor-pointer ${
-                  isCollapsed ? "justify-center px-0" : "px-4"
-                } ${
-                  isManageActive
+                className={`flex items-center gap-3.5 py-3.5 rounded-lg font-semibold transition-all cursor-pointer ${isCollapsed ? "justify-center px-0" : "px-4"
+                  } ${isManageActive
                     ? "bg-orange-600/10 text-orange-500 border border-orange-500/20"
                     : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50 border border-transparent"
-                }`}
+                  }`}
                 title={isCollapsed ? "Manage Resumes" : undefined}
               >
                 <svg className="w-5.5 h-5.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -107,13 +104,11 @@ export default function DashboardLayoutClient({ session, children }: DashboardLa
               </Link>
               <Link
                 href="/dashboard/create-link"
-                className={`flex items-center gap-3.5 py-3.5 rounded-lg font-semibold transition-all cursor-pointer ${
-                  isCollapsed ? "justify-center px-0" : "px-4"
-                } ${
-                  isCreateActive
+                className={`flex items-center gap-3.5 py-3.5 rounded-lg font-semibold transition-all cursor-pointer ${isCollapsed ? "justify-center px-0" : "px-4"
+                  } ${isCreateActive
                     ? "bg-orange-600/10 text-orange-500 border border-orange-500/20"
                     : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50 border border-transparent"
-                }`}
+                  }`}
                 title={isCollapsed ? "Create Link" : undefined}
               >
                 <svg className="w-5.5 h-5.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -123,13 +118,11 @@ export default function DashboardLayoutClient({ session, children }: DashboardLa
               </Link>
               <Link
                 href="/dashboard/ai-analyzer"
-                className={`flex items-center gap-3.5 py-3.5 rounded-lg font-semibold transition-all cursor-pointer ${
-                  isCollapsed ? "justify-center px-0" : "px-4"
-                } ${
-                  isAIAnalyzerActive
+                className={`flex items-center gap-3.5 py-3.5 rounded-lg font-semibold transition-all cursor-pointer ${isCollapsed ? "justify-center px-0" : "px-4"
+                  } ${isAIAnalyzerActive
                     ? "bg-orange-600/10 text-orange-500 border border-orange-500/20"
                     : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50 border border-transparent"
-                }`}
+                  }`}
                 title={isCollapsed ? "AI Analyzer" : undefined}
               >
                 <svg className="w-5.5 h-5.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -139,13 +132,11 @@ export default function DashboardLayoutClient({ session, children }: DashboardLa
               </Link>
               <Link
                 href="/dashboard/feedback"
-                className={`flex items-center gap-3.5 py-3.5 rounded-lg font-semibold transition-all cursor-pointer ${
-                  isCollapsed ? "justify-center px-0" : "px-4"
-                } ${
-                  isFeedbackActive
+                className={`flex items-center gap-3.5 py-3.5 rounded-lg font-semibold transition-all cursor-pointer ${isCollapsed ? "justify-center px-0" : "px-4"
+                  } ${isFeedbackActive
                     ? "bg-orange-600/10 text-orange-500 border border-orange-500/20"
                     : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50 border border-transparent"
-                }`}
+                  }`}
                 title={isCollapsed ? "Feedback" : undefined}
               >
                 <svg className="w-5.5 h-5.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -263,11 +254,10 @@ export default function DashboardLayoutClient({ session, children }: DashboardLa
                     <Link
                       href="/dashboard"
                       onClick={() => setIsMobileOpen(false)}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all cursor-pointer ${
-                        isManageActive
+                      className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all cursor-pointer ${isManageActive
                           ? "bg-orange-600/10 text-orange-500 border border-orange-500/20"
                           : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50 border border-transparent"
-                      }`}
+                        }`}
                     >
                       <svg className="w-5.5 h-5.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
@@ -277,11 +267,10 @@ export default function DashboardLayoutClient({ session, children }: DashboardLa
                     <Link
                       href="/dashboard/create-link"
                       onClick={() => setIsMobileOpen(false)}
-                      className={`flex items-center gap-3.5 px-4 py-3.5 rounded-lg font-semibold transition-all cursor-pointer ${
-                        isCreateActive
+                      className={`flex items-center gap-3.5 px-4 py-3.5 rounded-lg font-semibold transition-all cursor-pointer ${isCreateActive
                           ? "bg-orange-600/10 text-orange-500 border border-orange-500/20"
                           : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50 border border-transparent"
-                      }`}
+                        }`}
                     >
                       <svg className="w-5.5 h-5.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 00-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
@@ -291,11 +280,10 @@ export default function DashboardLayoutClient({ session, children }: DashboardLa
                     <Link
                       href="/dashboard/ai-analyzer"
                       onClick={() => setIsMobileOpen(false)}
-                      className={`flex items-center gap-3.5 px-4 py-3.5 rounded-lg font-semibold transition-all cursor-pointer ${
-                        isAIAnalyzerActive
+                      className={`flex items-center gap-3.5 px-4 py-3.5 rounded-lg font-semibold transition-all cursor-pointer ${isAIAnalyzerActive
                           ? "bg-orange-600/10 text-orange-500 border border-orange-500/20"
                           : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50 border border-transparent"
-                      }`}
+                        }`}
                     >
                       <svg className="w-5.5 h-5.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 21l8.904-4.813M21 3L9.813 14.187M21 3l-8 12.187m8-12.187v8m0-8h-8" />
@@ -305,11 +293,10 @@ export default function DashboardLayoutClient({ session, children }: DashboardLa
                     <Link
                       href="/dashboard/feedback"
                       onClick={() => setIsMobileOpen(false)}
-                      className={`flex items-center gap-3.5 px-4 py-3.5 rounded-lg font-semibold transition-all cursor-pointer ${
-                        isFeedbackActive
+                      className={`flex items-center gap-3.5 px-4 py-3.5 rounded-lg font-semibold transition-all cursor-pointer ${isFeedbackActive
                           ? "bg-orange-600/10 text-orange-500 border border-orange-500/20"
                           : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50 border border-transparent"
-                      }`}
+                        }`}
                     >
                       <svg className="w-5.5 h-5.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />

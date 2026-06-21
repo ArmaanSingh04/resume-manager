@@ -4,6 +4,40 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import Link from "next/link";
 import PdfShareView from "@/components/PdfShareView";
 import ResumeTracker from "@/components/ResumeTracker";
+import type { Metadata } from "next";
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const linkId = parseInt(id);
+
+  if (isNaN(linkId)) {
+    return {
+      title: "Invalid Link",
+    };
+  }
+
+  const link = await prisma.link.findUnique({
+    where: { id: linkId },
+    include: { file: true },
+  });
+
+  if (!link || !link.file) {
+    return {
+      title: "Resume Not Found",
+    };
+  }
+
+  const isPublic = link.type === "PUBLIC";
+
+  return {
+    title: link.file.fileName,
+    description: `View the shared resume: ${link.file.fileName}. Powered by Resume Manager.`,
+    robots: {
+      index: isPublic,
+      follow: isPublic,
+    },
+  };
+}
 
 export default async function SharePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

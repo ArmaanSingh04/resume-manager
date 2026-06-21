@@ -38,7 +38,7 @@ function FeatureCard({ icon, title, description, accent }: FeatureCardProps) {
 
       {/* Text */}
       <div className="flex flex-col gap-1.5">
-        <p className="font-semibold text-zinc-100 text-[15px] leading-snug">{title}</p>
+        <h3 className="font-semibold text-zinc-100 text-[15px] leading-snug">{title}</h3>
         <p className="text-zinc-500 text-sm leading-relaxed">{description}</p>
       </div>
 
