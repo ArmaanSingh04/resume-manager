@@ -197,7 +197,7 @@ export default function PdfViewer({ url }: PdfViewerProps) {
         <div
           ref={thumbListRef}
           className={cn(
-            "flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 [scrollbar-width:thin] [scrollbar-color:#35353c_transparent]",
+            "flex-1 overflow-y-auto overflow-x-hidden overscroll-contain px-4 py-4 scrollbar-thin [scrollbar-color:#35353c_transparent]",
             !sidebarOpen && "invisible"
           )}
         >
@@ -284,7 +284,7 @@ export default function PdfViewer({ url }: PdfViewerProps) {
       <div className="relative flex-1 min-w-0 h-full ml-12 md:ml-0">
         <div
           ref={setScrollEl}
-          className="h-full overflow-auto px-4 pt-6 pb-28 md:px-8 md:pt-8 [scrollbar-width:thin] [scrollbar-color:#35353c_transparent]"
+          className="h-full overflow-auto overscroll-contain px-4 pt-6 pb-28 md:px-8 md:pt-8 scrollbar-thin [scrollbar-color:#35353c_transparent]"
         >
           {/* w-max lets zoomed pages overflow horizontally; min-w-full keeps them centred otherwise */}
           <div className="w-max min-w-full flex flex-col items-center gap-6">
