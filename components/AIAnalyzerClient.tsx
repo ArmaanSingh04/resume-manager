@@ -114,6 +114,11 @@ export default function AIAnalyzerClient() {
 
       const result = await extractResumeText(formData);
 
+      if (!result.ok) {
+        alert(result.error);
+        return;
+      }
+
       // Save states
       setRawText(result.extractedText);
       setRawJobDesc(result.jobDescription);
@@ -122,7 +127,7 @@ export default function AIAnalyzerClient() {
     } catch (error: any) {
       console.error("Failed to analyze resume:", error);
       const errMsg = error?.message || String(error);
-      alert(`Error parsing resume file: ${errMsg}`);
+      alert(`Error analyzing resume: ${errMsg}`);
     } finally {
       setIsAnalyzing(false);
     }

@@ -1,7 +1,5 @@
 "use server";
 
-import { PDFParse } from "pdf-parse";
-
 const SYSTEM_PROMPT = `You are an expert ATS reviewer and technical recruiter.
 
 Analyze the provided resume. If a job description is also provided, evaluate the resume against that job description.
@@ -79,37 +77,68 @@ Rules:
 * Return ONLY valid JSON.
 * Do not include markdown or explanations.`;
 
-export async function extractResumeText(formData: FormData) {
+// Server Actions must return errors instead of throwing them: in production
+// Next.js replaces a thrown error's message with a generic digest notice.
+export type ResumeAnalysisResult =
+  | { ok: true; extractedText: string; jobDescription: string; analysis: unknown }
+  | { ok: false; error: string };
+
+async function extractPdfText(buffer: Buffer): Promise<string> {
+  // Import order matters. pdf-parse/worker polyfills DOMMatrix, ImageData and
+  // Path2D from @napi-rs/canvas, and pdfjs uses DOMMatrix as soon as pdf-parse
+  // loads. pdfjs would otherwise load canvas and its worker through dynamic
+  // requires that Vercel's file tracer can't follow, so neither gets deployed.
+  const { CanvasFactory, getData } = await import("pdf-parse/worker");
+  const { PDFParse } = await import("pdf-parse");
+
+  // Load the worker from an inline data: URL so no worker file is needed on disk.
+  PDFParse.setWorker(getData());
+
+  const parser = new PDFParse({ data: buffer, CanvasFactory });
+  try {
+    const result = await parser.getText();
+    return result.text;
+  } finally {
+    await parser.destroy();
+  }
+}
+
+export async function extractResumeText(formData: FormData): Promise<ResumeAnalysisResult> {
   const file = formData.get("file") as File | null;
   const jobDescription = formData.get("jobDescription") as string || "";
 
   if (!file) {
-    throw new Error("No file uploaded");
+    return { ok: false, error: "No file uploaded." };
   }
 
   if (!file.name.toLowerCase().endsWith(".pdf")) {
-    throw new Error("Only PDF files are supported. Please upload a PDF file.");
+    return { ok: false, error: "Only PDF files are supported. Please upload a PDF file." };
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
   let extractedText = "";
 
   try {
-    const parser = new PDFParse({ data: buffer });
-    const textResult = await parser.getText();
-    extractedText = textResult.text;
+    extractedText = await extractPdfText(buffer);
   } catch (err: any) {
     console.error("Error parsing PDF file:", err);
-    throw new Error(`Failed to parse PDF: ${err.message}`);
+    return { ok: false, error: `Failed to read the PDF: ${err?.message || String(err)}` };
   }
 
-  // Verify API Key
+  if (!extractedText.trim()) {
+    return {
+      ok: false,
+      error: "No text could be found in this PDF. Scanned or image-only resumes aren't supported.",
+    };
+  }
+
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
-    throw new Error("OPENAI_API_KEY is not configured in the environment variables (.env file).");
+    console.error("OPENAI_API_KEY is not set for this deployment.");
+    return { ok: false, error: "AI analysis is not configured on the server (OPENAI_API_KEY is missing)." };
   }
 
-  let analysis = {};
+  let analysis: unknown = {};
 
   try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -136,8 +165,11 @@ export async function extractResumeText(formData: FormData) {
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error("OpenAI API call failed:", errText);
-      throw new Error(`OpenAI API request failed: ${response.statusText} (${errText})`);
+      console.error("OpenAI API call failed:", response.status, errText);
+      return {
+        ok: false,
+        error: `AI analysis request failed (${response.status} ${response.statusText}).`,
+      };
     }
 
     const resJson = await response.json();
@@ -145,12 +177,11 @@ export async function extractResumeText(formData: FormData) {
     analysis = JSON.parse(rawContent);
   } catch (err: any) {
     console.error("Error calling OpenAI API:", err);
-    throw new Error(`Failed to analyze resume via OpenAI: ${err.message}`);
+    return { ok: false, error: `Failed to analyze resume: ${err?.message || String(err)}` };
   }
 
-
-
   return {
+    ok: true,
     extractedText,
     jobDescription,
     analysis,
