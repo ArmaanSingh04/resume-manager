@@ -8,16 +8,36 @@ import { ArrowRight, Link2, BarChart2, Zap, FileText } from "lucide-react";
 export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
-        await signIn("credentials", {
-            email,
-            password,
-            callbackUrl: "/dashboard"
-        })
+        if (isSubmitting) return;
+        setIsSubmitting(true);
+
+        try {
+            // On success the browser navigates away, so the loader stays up until the dashboard loads.
+            await signIn("credentials", {
+                email,
+                password,
+                callbackUrl: "/dashboard"
+            })
+        } catch (err) {
+            console.error("Sign in failed:", err);
+            setIsSubmitting(false);
+        }
     }
+
+    // If the user comes back with the browser's Back button, the page can be
+    // restored from cache with the loader still showing, so reset it.
+    useEffect(() => {
+        const onPageShow = (e: PageTransitionEvent) => {
+            if (e.persisted) setIsSubmitting(false);
+        };
+        window.addEventListener("pageshow", onPageShow);
+        return () => window.removeEventListener("pageshow", onPageShow);
+    }, []);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -286,8 +306,29 @@ export default function Login() {
                     box-shadow: 0 12px 32px -4px rgba(249,248,113,0.35);
                 }
                 .auth-btn:active { transform: translateY(0); }
+                .auth-btn:disabled,
+                .auth-btn:disabled:hover {
+                    background: #f9f871;
+                    opacity: 0.75;
+                    cursor: progress;
+                    transform: none;
+                    box-shadow: 0 8px 24px -4px rgba(249,248,113,0.25);
+                }
                 .auth-btn svg { transition: transform 0.2s; }
                 .auth-btn:hover svg { transform: translateX(3px); }
+
+                .auth-spinner {
+                    width: 15px;
+                    height: 15px;
+                    border-radius: 50%;
+                    border: 2px solid rgba(17, 16, 16, 0.25);
+                    border-top-color: #111010;
+                    animation: authSpin 0.7s linear infinite;
+                    flex-shrink: 0;
+                }
+                @keyframes authSpin {
+                    to { transform: rotate(360deg); }
+                }
 
                 .auth-footer-row {
                     margin-top: 24px;
@@ -387,9 +428,18 @@ export default function Login() {
                                 />
                             </div>
 
-                            <button type="submit" className="auth-btn">
-                                Sign in
-                                <ArrowRight size={15} />
+                            <button type="submit" className="auth-btn" disabled={isSubmitting} aria-busy={isSubmitting}>
+                                {isSubmitting ? (
+                                    <>
+                                        <span className="auth-spinner" aria-hidden="true" />
+                                        Signing in...
+                                    </>
+                                ) : (
+                                    <>
+                                        Sign in
+                                        <ArrowRight size={15} />
+                                    </>
+                                )}
                             </button>
                         </form>
 

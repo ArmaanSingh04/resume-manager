@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react";
+import { signIn } from "next-auth/react";
 import { createUser } from "@/actions/createUser";
 import Link from "next/link";
 import { ArrowRight, Link2, BarChart2, Zap, ShieldCheck } from "lucide-react";
@@ -8,12 +9,46 @@ import { ArrowRight, Link2, BarChart2, Zap, ShieldCheck } from "lucide-react";
 export default function Register() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState<string | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
-        createUser(email, password);
+        if (isSubmitting) return;
+        setError(null);
+        setIsSubmitting(true);
+
+        try {
+            const result = await createUser(email, password);
+            if (!result.ok) {
+                setError(result.error);
+                setIsSubmitting(false);
+                return;
+            }
+
+            // Account created: sign straight in, same as the login page.
+            await signIn("credentials", {
+                email: email.trim(),
+                password,
+                callbackUrl: "/dashboard"
+            });
+        } catch (err) {
+            console.error("Signup failed:", err);
+            setError("Something went wrong while creating your account. Please try again.");
+            setIsSubmitting(false);
+        }
     }
+
+    // If the user comes back with the browser's Back button, the page can be
+    // restored from cache with the loader still showing, so reset it.
+    useEffect(() => {
+        const onPageShow = (e: PageTransitionEvent) => {
+            if (e.persisted) setIsSubmitting(false);
+        };
+        window.addEventListener("pageshow", onPageShow);
+        return () => window.removeEventListener("pageshow", onPageShow);
+    }, []);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -282,6 +317,38 @@ export default function Register() {
                     box-shadow: 0 12px 32px -4px rgba(249,248,113,0.35);
                 }
                 .auth-btn:active { transform: translateY(0); }
+                .auth-btn:disabled,
+                .auth-btn:disabled:hover {
+                    background: #f9f871;
+                    opacity: 0.75;
+                    cursor: progress;
+                    transform: none;
+                    box-shadow: 0 8px 24px -4px rgba(249,248,113,0.25);
+                }
+
+                .auth-spinner {
+                    width: 15px;
+                    height: 15px;
+                    border-radius: 50%;
+                    border: 2px solid rgba(17, 16, 16, 0.25);
+                    border-top-color: #111010;
+                    animation: authSpin 0.7s linear infinite;
+                    flex-shrink: 0;
+                }
+                @keyframes authSpin {
+                    to { transform: rotate(360deg); }
+                }
+
+                .auth-error {
+                    margin-bottom: 18px;
+                    padding: 10px 14px;
+                    border-radius: 10px;
+                    border: 1px solid rgba(244, 63, 94, 0.3);
+                    background: rgba(244, 63, 94, 0.08);
+                    color: #fda4af;
+                    font-size: 13px;
+                    line-height: 1.45;
+                }
                 .auth-btn svg { transition: transform 0.2s; }
                 .auth-btn:hover svg { transform: translateX(3px); }
 
@@ -359,6 +426,12 @@ export default function Register() {
                         <div className="auth-divider" />
 
                         <form onSubmit={handleSubmit}>
+                            {error && (
+                                <div className="auth-error" role="alert">
+                                    {error}
+                                </div>
+                            )}
+
                             <div className="auth-field">
                                 <label className="auth-label">Email address</label>
                                 <input
@@ -383,9 +456,18 @@ export default function Register() {
                                 />
                             </div>
 
-                            <button type="submit" className="auth-btn">
-                                Create free account
-                                <ArrowRight size={15} />
+                            <button type="submit" className="auth-btn" disabled={isSubmitting} aria-busy={isSubmitting}>
+                                {isSubmitting ? (
+                                    <>
+                                        <span className="auth-spinner" aria-hidden="true" />
+                                        Creating account...
+                                    </>
+                                ) : (
+                                    <>
+                                        Create free account
+                                        <ArrowRight size={15} />
+                                    </>
+                                )}
                             </button>
                         </form>
 
